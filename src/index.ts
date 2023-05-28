@@ -1,5 +1,5 @@
 import getRoutes from '../utils/getRoutes';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 const express = require('express');
 
@@ -12,7 +12,6 @@ let routes: undefined | string[];
 })().then(() => {
   routes?.forEach((route) => {
     import(`../server/${route}.js`).then((module) => {
-      console.log(module.default(), '/'.concat(route));
       return app.use('/'.concat(route), module.default());
     });
   });

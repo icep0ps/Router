@@ -46,7 +46,6 @@ let routes;
     routes === null || routes === void 0 ? void 0 : routes.forEach((route) => {
         var _a;
         (_a = `../server/${route}.js`, Promise.resolve().then(() => __importStar(require(_a)))).then((module) => {
-            console.log(module.default(), '/'.concat(route));
             return app.use('/'.concat(route), module.default());
         });
     });
