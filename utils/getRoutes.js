@@ -51,11 +51,10 @@ function getRoutes() {
             const splitPath = pathname.split('/');
             const segments = splitPath.map((route, i) => i === splitPath.length - 1 ? route.concat('.js') : route);
             const route = yield (_a = `../pages/${filename}`, Promise.resolve().then(() => __importStar(require(_a))));
-            const modules = [
-                'const router = express.Router();',
-                "const express = require('express');",
-            ];
-            let router = `module.exports = function handler(){router.get("/", ${route.default}); return router;}`;
+            // modules are imports that the user has at the top of the file
+            // for example importing prisma client
+            const modules = [];
+            let router = `module.exports = function handler(){return ${route.default}}`;
             for (const module of modules) {
                 router = module.concat(router);
             }

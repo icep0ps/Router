@@ -22,12 +22,12 @@ async function getRoutes() {
       );
 
       const route = await import(`../pages/${filename}`);
-      const modules = [
-        'const router = express.Router();',
-        "const express = require('express');",
-      ];
 
-      let router = `module.exports = function handler(){router.get("/", ${route.default}); return router;}`;
+      // modules are imports that the user has at the top of the file
+      // for example importing prisma client
+      const modules: string[] = [];
+
+      let router = `module.exports = function handler(){return ${route.default}}`;
 
       for (const module of modules) {
         router = module.concat(router);

@@ -11,8 +11,8 @@ let routes: undefined | string[];
   routes = await getRoutes();
 })().then(() => {
   routes?.forEach((route) => {
-    import(`../server/${route}.js`).then((module) => {
-      return app.use('/'.concat(route), module.default());
+    import(`../server/${route}.js`).then((handerModule) => {
+      return app.use('/'.concat(route), handerModule.default());
     });
   });
 

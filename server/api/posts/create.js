@@ -1,3 +1,3 @@
-const express = require('express');const router = express.Router();module.exports = function handler(){router.get("/", function handler(req, res) {
+const express = require('express');const router = express.Router();module.exports = function handler(){return function handler(req, res) {
     res.send('im create route');
-}); return router;}
+}}
