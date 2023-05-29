@@ -32,35 +32,57 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fse = require('fs-extra');
 const promises_1 = require("fs/promises");
+const promises_2 = require("fs/promises");
 const path_1 = require("path");
 function getRoutes() {
     return __awaiter(this, void 0, void 0, function* () {
-        const arr = (0, path_1.resolve)(__dirname).split('\\');
-        const pagesDir = (0, path_1.join)(...arr.slice(0, arr.length - 1), 'pages');
-        const serverDir = (0, path_1.join)(...arr.slice(0, arr.length - 1), 'server');
-        const files = yield (0, promises_1.readdir)(pagesDir);
-        for (const file of yield (0, promises_1.readdir)(serverDir)) {
-            yield (0, promises_1.unlink)((0, path_1.join)(serverDir, file));
+        const dirSegmanets = (0, path_1.resolve)(__dirname).split('\\');
+        const pagesDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'pages');
+        const serverDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'server');
+        const files = yield generateFilename(pagesDir);
+        for (const file of yield (0, promises_2.readdir)(serverDir)) {
+            yield fse.remove((0, path_1.join)(serverDir, file));
         }
         return Promise.all(files.map((filename) => __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const pagesDir = (0, path_1.basename)(filename, '.js');
+            const pathname = filename.replace(/\.[^/.]+$/, '');
+            const splitPath = pathname.split('/');
+            const segments = splitPath.map((route, i) => i === splitPath.length - 1 ? route.concat('.js') : route);
             const route = yield (_a = `../pages/${filename}`, Promise.resolve().then(() => __importStar(require(_a))));
             const modules = [
-                "const express = require('express');",
                 'const router = express.Router();',
+                "const express = require('express');",
             ];
-            const router = `module.exports = function handler(){router.get("/", ${route.default}); return router;}`;
-            yield new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                for (const module of modules) {
-                    yield (0, promises_1.appendFile)((0, path_1.join)((0, path_1.dirname)(__dirname), 'server', `${pagesDir}.js`), module);
-                }
-                resolve('sucess');
-            }));
-            yield (0, promises_1.appendFile)((0, path_1.join)((0, path_1.dirname)(__dirname), 'server', `${pagesDir}.js`), router);
-            return pagesDir;
+            let router = `module.exports = function handler(){router.get("/", ${route.default}); return router;}`;
+            for (const module of modules) {
+                router = module.concat(router);
+            }
+            yield fse.outputFile((0, path_1.join)((0, path_1.dirname)(__dirname), 'server', ...segments), router);
+            return pathname;
         })));
+    });
+}
+function generateFilename(upperDir, arr = []) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let rDirt = upperDir;
+        const files = yield (0, promises_2.readdir)(upperDir);
+        for (var dir of files) {
+            rDirt = (0, path_1.join)(upperDir, dir);
+            let file = yield (0, promises_1.lstat)(rDirt);
+            if (file.isDirectory()) {
+                arr.push(...(yield generateFilename(rDirt)));
+            }
+            else {
+                const replaced = (0, path_1.resolve)(rDirt).split('\\');
+                const dirs = replaced
+                    .slice(replaced.indexOf('pages') + 1, replaced.length)
+                    .join('/');
+                arr.push(dirs);
+            }
+        }
+        return arr;
     });
 }
 exports.default = getRoutes;

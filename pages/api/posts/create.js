@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function handler(req, res) {
-    res.json({ msg: 'succes' });
+    res.send('im create route');
 }
 exports.default = handler;
