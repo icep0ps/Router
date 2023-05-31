@@ -3,10 +3,13 @@ import { lstat } from 'fs/promises';
 import { readdir } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 
+const dirSegmanets = resolve(__dirname).split('\\');
+const pagesDir = join(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'pages');
+const serverDir = join(...dirSegmanets.slice(0, dirSegmanets.length - 2), 'server');
+
+//* you could make getRoutes take the pagesDir and serverDir as args
+
 async function getRoutes() {
-  const dirSegmanets = resolve(__dirname).split('\\');
-  const pagesDir = join(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'pages');
-  const serverDir = join(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'server');
   const files = await generateFilename(pagesDir);
 
   for (const file of await readdir(serverDir)) {
@@ -20,7 +23,6 @@ async function getRoutes() {
       const segments = splitPath.map((route, i) =>
         i === splitPath.length - 1 ? route.concat('.js') : route
       );
-
       const route = await import(`../pages/${filename}`);
 
       // modules are imports that the user has at the top of the file
@@ -39,7 +41,10 @@ async function getRoutes() {
   );
 }
 
-async function generateFilename(upperDir: string, arr: string[] = []): Promise<string[]> {
+export async function generateFilename(
+  upperDir: string,
+  arr: string[] = []
+): Promise<string[]> {
   let rDirt = upperDir;
   const files = await readdir(upperDir);
   for (var dir of files) {

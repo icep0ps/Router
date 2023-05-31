@@ -32,15 +32,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateFilename = void 0;
 const fse = require('fs-extra');
 const promises_1 = require("fs/promises");
 const promises_2 = require("fs/promises");
 const path_1 = require("path");
+const dirSegmanets = (0, path_1.resolve)(__dirname).split('\\');
+const pagesDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'pages');
+const serverDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 2), 'server');
+//* you could make getRoutes take the pagesDir and serverDir as args
 function getRoutes() {
     return __awaiter(this, void 0, void 0, function* () {
-        const dirSegmanets = (0, path_1.resolve)(__dirname).split('\\');
-        const pagesDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'pages');
-        const serverDir = (0, path_1.join)(...dirSegmanets.slice(0, dirSegmanets.length - 1), 'server');
         const files = yield generateFilename(pagesDir);
         for (const file of yield (0, promises_2.readdir)(serverDir)) {
             yield fse.remove((0, path_1.join)(serverDir, file));
@@ -84,4 +86,5 @@ function generateFilename(upperDir, arr = []) {
         return arr;
     });
 }
+exports.generateFilename = generateFilename;
 exports.default = getRoutes;
