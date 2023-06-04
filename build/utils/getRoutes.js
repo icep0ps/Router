@@ -53,17 +53,16 @@ function getRoutes() {
             const splitPath = pathname.split('/');
             const segments = splitPath.map((route, i) => i === splitPath.length - 1 ? route.concat('.js') : route);
             const route = yield (_a = `../pages/${filename}`, Promise.resolve().then(() => __importStar(require(_a))));
-            // modules are imports that the user has at the top of the file
-            // for example importing prisma client
-            const modules = [];
-            let router = `module.exports = function handler(){return ${route.default}}`;
-            for (const module of modules) {
-                router = module.concat(router);
-            }
+            let router = 'module.exports =' + createHandler(route.default);
+            console.log(router);
             yield fse.outputFile((0, path_1.join)((0, path_1.dirname)(__dirname), 'server', ...segments), router);
             return pathname;
         })));
     });
+}
+function createHandler(data) {
+    const cb = data();
+    return JSON.stringify(cb);
 }
 function generateFilename(upperDir, arr = []) {
     return __awaiter(this, void 0, void 0, function* () {

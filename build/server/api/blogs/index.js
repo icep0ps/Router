@@ -1,3 +1,3 @@
-module.exports = function handler(){return function hander(req, res) {
-  res.send('blogs endpoint!');
-}}
+module.exports =function hander(req, res) {
+    res.send(msg);
+}

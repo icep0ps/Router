@@ -52,7 +52,7 @@ describe('mock generateFilename should return correct dir paths', () => {
   test('returns 4 paths', () => {
     dir.add('meta', 'dir');
     const meta = dir.selecetDir('meta').add('keys', 'dir').add('index.ts', 'file');
-    const keys = meta.selecetDir('keys').add('newkeys', 'dir').add('index.js', 'file');
+    meta.selecetDir('keys').add('newkeys', 'dir').add('index.js', 'file');
 
     expect(generateFilenameMock(dir)).toEqual(
       expect.arrayContaining(['meta/keys/index.js', 'meta/index.ts', 'meta/keys/newkeys'])

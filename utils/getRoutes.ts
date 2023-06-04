@@ -25,20 +25,18 @@ async function getRoutes() {
       );
       const route = await import(`../pages/${filename}`);
 
-      // modules are imports that the user has at the top of the file
-      // for example importing prisma client
-      const modules: string[] = [];
-
-      let router = `module.exports = function handler(){return ${route.default}}`;
-
-      for (const module of modules) {
-        router = module.concat(router);
-      }
+      let router = 'module.exports =' + createHandler(route.default);
+      console.log(router);
 
       await fse.outputFile(join(dirname(__dirname), 'server', ...segments), router);
       return pathname;
     })
   );
+}
+
+function createHandler(data) {
+  const cb = data();
+  return JSON.stringify(cb);
 }
 
 export async function generateFilename(

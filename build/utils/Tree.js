@@ -1,48 +1,90 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.lstats = exports.IFile = void 0;
 class IFile {
-    constructor(name, next) {
+    constructor(name) {
         this.name = name;
-        this.next = next;
+        this.parent = '';
+    }
+    set setparent(parentname) {
+        this.parent = parentname;
     }
 }
+exports.IFile = IFile;
 class Dir {
-    constructor(name, next = null, type) {
+    constructor(name, contents = new Map()) {
         this.name = name;
-        this.next = next;
-        this.HEAD = type === 'dir' ? null : new IFile(name, null);
+        this.contents = contents;
+        this.parent = '';
+        this._dir = () => Array.from(this.contents.keys());
     }
-    prepend(name) {
-        // add node to the start of the tree
-        const node = new Dir(name, this.HEAD, 'dir');
-        this.HEAD = node;
-        return this.HEAD;
+    set setparent(parentname) {
+        this.parent = parentname;
     }
-    append(name, type) {
-        // adds node to the end of the tree
-        let node;
+    add(node, type) {
+        const dir = new Dir(node);
+        dir.setparent = this.parent.concat('/' + this.name);
+        const file = new IFile(node);
+        file.setparent = this.parent.concat('/' + this.name);
         if (type === 'dir') {
-            node = new Dir(name, null, 'dir');
+            this.contents.set(node, dir);
         }
         else {
-            node = new IFile(name, null);
+            this.contents.set(node, file);
         }
-        let tmp = this.HEAD;
-        if (tmp) {
-            console.log(tmp);
-            while (tmp === null || tmp === void 0 ? void 0 : tmp.next) {
-                tmp = tmp.next;
+        return this;
+    }
+    selecetDir(node) {
+        const value = this.contents.get(node);
+        if (value instanceof Dir) {
+            return value;
+        }
+        else if (value instanceof IFile) {
+            throw new Error('please select a directory not a file');
+        }
+        else {
+            throw new Error('directory does not exist');
+        }
+    }
+    remove(node) {
+        this.contents.delete(node.name);
+    }
+    readdirs() {
+        const paths = this._dir();
+        const path = paths.map((dir) => {
+            const value = this.contents.get(dir);
+            if (value) {
+                if (value instanceof Dir) {
+                    return value._dir();
+                }
             }
-            tmp.next = node;
-        }
-        else {
-            this.HEAD = node;
-        }
-        return this.HEAD;
+            else {
+                throw new Error('Path does not exist'.concat(dir));
+            }
+        });
+        return path
+            .map((array) => {
+            if (array) {
+                return array.filter((path) => path !== undefined);
+            }
+            return [];
+        })
+            .join(',')
+            .split(',');
     }
 }
-const dir = new Dir('pages', null, 'dir');
-console.log(dir);
-const api = dir.prepend('api');
-const blogs = api.append('blogs', 'dir');
-api.append('index.js', 'file');
-console.log(dir);
+function lstats(dir, path) {
+    const paths = path.split('/').filter((item) => item !== '');
+    let file = dir.contents.get(paths[0]);
+    if (file) {
+        while (file instanceof Dir && paths[1]) {
+            paths.shift();
+            file = file.contents.get(paths[0]);
+        }
+        return file;
+    }
+    console.log('this is file:', file, path, dir);
+    return file;
+}
+exports.lstats = lstats;
+exports.default = Dir;

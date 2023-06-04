@@ -3,8 +3,6 @@ import { Request, Response } from 'express';
 
 const express = require('express');
 
-
-
 const app = express();
 const port = 3000;
 let routes: undefined | string[];
@@ -14,7 +12,7 @@ let routes: undefined | string[];
 })().then(() => {
   routes?.forEach((route) => {
     import(`../server/${route}.js`).then((handerModule) => {
-      return app.use('/'.concat(route), handerModule.default());
+      return app.use('/'.concat(route), handerModule.default);
     });
   });
 
